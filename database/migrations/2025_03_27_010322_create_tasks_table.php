@@ -4,19 +4,19 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateNewTodoListTable extends Migration
-{
+return new class extends Migration {
     public function up()
     {
-        Schema::create('todolist', function (Blueprint $table) {
+        Schema::create('todo_lists', function (Blueprint $table) {
             $table->id();
-            $table->string('list');
+            $table->string('title');
+            $table->boolean('completed')->default(false);
             $table->timestamps();
         });
     }
 
     public function down()
     {
-        Schema::dropIfExists('todolist');
+        Schema::dropIfExists('todo_lists');
     }
-}
+};

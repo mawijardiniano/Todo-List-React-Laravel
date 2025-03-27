@@ -5,65 +5,96 @@ namespace App\Http\Controllers;
 use App\Models\TodoList;
 use Illuminate\Http\Request;
 
-class  TodoListController extends Controller
+class TodoListController extends Controller
 {
-    // Get all documents
+    // Get all tasks
     public function index()
     {
-        $todolist = TodoList::all();
-        return response()->json($todolist);
+        $tasks = TodoList::all();
+        return response()->json([
+            'success' => true,
+            'data' => $tasks
+        ]);
     }
 
-    // Store a new document
+    // Get a single task
+    public function show($id)
+    {
+        $task = TodoList::find($id);
+
+        if (!$task) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Task not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $task
+        ]);
+    }
+
+    // Add a new task
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'list' => 'required|string',
+            'title' => 'required|string|max:255',
+            'completed' => 'boolean'
         ]);
 
-        $todolist = TodoList::create($validated);
+        $task = TodoList::create($validated);
 
-        return response()->json($todolist, 201);
+        return response()->json([
+            'success' => true,
+            'message' => 'Task added successfully',
+            'data' => $task
+        ], 201);
     }
 
-    // Show a single document
-    public function show($id)
-    {
-        $todolist = TodoList::find($id);
-        if (!$todolist) {
-            return response()->json(['message' => 'Document not found'], 404);
-        }
-        return response()->json($todolist);
-    }
-
-    // Update a document
+    // Update an existing task
     public function update(Request $request, $id)
     {
-        $todolist = TodoList::find($id);
-        if (!$todolist) {
-            return response()->json(['message' => 'Document not found'], 404);
+        $task = TodoList::find($id);
+
+        if (!$task) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Task not found'
+            ], 404);
         }
 
         $validated = $request->validate([
-            'list' => 'sometimes|required|string',
-
+            'title' => 'sometimes|string|max:255',
+            'completed' => 'sometimes|boolean'
         ]);
 
-        $todolist->update($validated);
+        $task->update($validated);
 
-        return response()->json($todolist);
+        return response()->json([
+            'success' => true,
+            'message' => 'Task updated successfully',
+            'data' => $task
+        ]);
     }
 
-    // Delete a document
+    // Delete a task
     public function destroy($id)
     {
-        $todolist = TodoList::find($id);
-        if (!$todolist) {
-            return response()->json(['message' => 'Document not found'], 404);
+        $task = TodoList::find($id);
+
+        if (!$task) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Task not found'
+            ], 404);
         }
 
-        $todolist->delete();
+        $task->delete();
 
-        return response()->json(['message' => 'Document deleted successfully']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Task deleted successfully'
+        ]);
     }
 }
