@@ -9,6 +9,11 @@ class TodoList extends Model
 {
     use HasFactory;
 
-    protected $table = 'todo_lists'; // Ensures it uses the correct table
+    protected $table = 'todo_lists';
     protected $fillable = ['title', 'completed'];
+
+    protected $casts = [
+        'completed' => 'boolean',
+    ];
 }
+
