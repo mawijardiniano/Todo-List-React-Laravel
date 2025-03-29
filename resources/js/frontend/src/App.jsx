@@ -4,12 +4,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import CompleteModal from "./modals/completeModal";
 import EditModal from "./modals/editModal";
+import DeleteModal from "./modals/deleteModal"; 
 
 function App() {
     const [tasks, setTasks] = useState([]);
     const [taskTitle, setTaskTitle] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditModalOpen, setEditModalOpen] = useState(false);
+    const [isDeleteModalOpen, setDeleteModalOpen] = useState(false); 
     const [selectedTaskId, setSelectedTaskId] = useState(null);
     const [viewMode, setViewMode] = useState("active");
     const [editTaskTitle, setEditTaskTitle] = useState("");
@@ -68,13 +70,30 @@ function App() {
         setSelectedTaskId(null);
     };
 
+    const deleteTask = async () => {
+        if (!selectedTaskId) return;
+        try {
+            await axios.delete(`http://127.0.0.1:8000/api/tasks/${selectedTaskId}`);
+            setTasks(tasks.filter(task => task.id !== selectedTaskId));
+        } catch (error) {
+            console.error("Error deleting task:", error);
+        }
+        setDeleteModalOpen(false);
+        setSelectedTaskId(null);
+    };
+
     const renderTasks = () => {
-        return tasks
-            .filter((task) => (viewMode === "active" ? !task.completed : task.completed))
-            .map((task) => (
-                <div key={task.id} className="border-bottom py-2 d-flex justify-content-between align-items-center">
-                    <div>{task.title}</div>
-                    <div className="d-flex gap-2">
+        switch (viewMode) {
+            case "active":
+                return tasks
+                    .filter((task) => !task.completed)
+                    .map((task) => (
+                        <div
+                            key={task.id}
+                            className="border-bottom py-2 d-flex justify-content-between align-items-center"
+                        >
+                            <div>{task.title}</div>
+                            <div className="d-flex gap-2">
                         <button className="btn btn-success btn-sm" onClick={() => {
                             setSelectedTaskId(task.id);
                             setIsModalOpen(true);
@@ -88,13 +107,35 @@ function App() {
                         }}>
                             <FontAwesomeIcon icon={faEdit} />
                         </button>
-                        <button className="btn btn-danger btn-sm">
+                        <button className="btn btn-danger btn-sm" onClick={() => {
+                            setSelectedTaskId(task.id);
+                            setDeleteModalOpen(true);
+                        }}>
                             <FontAwesomeIcon icon={faTrash} />
                         </button>
                     </div>
-                </div>
-            ));
-    };
+                        </div>
+                    ));
+    
+            case "completed":
+                return tasks
+                    .filter((task) => task.completed)
+                    .map((task) => (
+                        <div
+                            key={task.id}
+                            className="border-bottom py-2 d-flex justify-content-between align-items-center"
+                        >
+                            <div className="d-flex justify-content-between w-100">
+                                <p>{task.title}</p>
+                                <p className="text-success">✅ Completed</p>
+                            </div>
+                        </div>
+                    ));
+    
+            default:
+                return <p>No tasks available</p>;
+        }
+    }
 
     return (
         <div className="d-flex flex-column vh-100">
@@ -130,6 +171,7 @@ function App() {
 
             <CompleteModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={handleCompleteTask} />
             <EditModal isOpen={isEditModalOpen} onClose={() => setEditModalOpen(false)} onConfirm={handleEditTask} editTaskTitle={editTaskTitle} setEditTaskTitle={setEditTaskTitle} />
+            <DeleteModal isOpen={isDeleteModalOpen} onClose={() => setDeleteModalOpen(false)} onConfirm={deleteTask} />
         </div>
     );
 }
