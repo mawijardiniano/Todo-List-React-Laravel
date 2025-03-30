@@ -6,10 +6,7 @@ const CompleteModal = ({ isOpen, onClose, onConfirm }) => {
 
     return (
         <>
-            {/* Backdrop */}
             <div className="modal-backdrop show"></div>
-
-            {/* Modal */}
             <div className="modal show d-block" tabIndex="-1" role="dialog">
                 <div className="modal-dialog modal-dialog-centered" role="document">
                     <div className="modal-content">
