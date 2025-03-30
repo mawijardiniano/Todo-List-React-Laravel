@@ -78,7 +78,7 @@ class TodoListController extends Controller
         ]);
     }
 
-    // Delete a task
+    // Delete a tasks
     public function destroy($id)
     {
         $task = TodoList::find($id);
